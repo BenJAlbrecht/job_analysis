@@ -75,11 +75,42 @@ titles_plot <- ggplot(top_titles, aes(x = reorder(job, -n), y=n)) +
 ################################## TOP LOC PIE ###########################################
 ##########################################################################################
 # Top locations pie graph.
+
+# Define simple locations
+bay_area <- c("SF", "Fremont", "Pleasanton", "Cupertino", "San Jose",
+              "Sunnyvale", "Palo Alto", "Santa Clara", "Oakland",
+              "Berkeley", "Foster City", "Redwood City")
+home <- c("Reno", "Carson City", "Sparks", "Incline", "Verdi", 
+          "Virginia City")
+la <- c("LA", "El Segundo", "Irvine", "Santa Monica", "Long Beach",
+        "Culver City", "Glendale", "Marina del Rey", "City of Industry",
+        "Santa Ana")
+sd <- c("SD", "Carlsbad", "La Jolla", "Oceanside", "Poway")
+lv <- c("LV", "Las Vegas")
+ca <- c("California", "Bakersfield", "Salinas")
+
+data <- data %>%
+  mutate(simple_loc = case_when(
+    location %in% bay_area ~ "Bay Area",
+    location %in% home ~ "Hometown",
+    location %in% la ~ "LA Area",
+    location %in% sd ~ "SD Area",
+    str_detect(location, "Remote") ~ "Remote",
+    str_detect(location, "SF") ~ "Bay Area",
+    str_detect(location, "SD") ~ "SD Area",
+    is.na(location) ~ "Remote",
+    location %in% lv ~ "Las Vegas",
+    location %in% ca ~ "California (other)",
+    TRUE ~ location
+  ))
+
 top_locations <- data %>%
-  count(location) %>%
+  count(simple_loc) %>%
   arrange(desc(n))
 
-data
+ggplot(top_locations, aes(x = "", y = n, fill = simple_loc)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y", start = 0)
 
 ##########################################################################################
 ################################ SALARY DIST #############################################
@@ -112,6 +143,11 @@ final_sal <- 46000
 breaks <- seq(0, 200000, by = 50000)
 labels <- paste0("$", breaks/1000, "k")
 
+# How many jobs posted sal?
+n_salaries <- nrow(salary_data)
+n_jobs <- nrow(data)
+n_posted_sals <- n_salaries / n_jobs
+
 # Plotting
 sal_plot <- ggplot(salary_data, aes(x = lower_bound)) +
   geom_histogram(binwidth = 15000, fill = "#0072B2", color = "black") +
@@ -132,6 +168,9 @@ sal_plot <- ggplot(salary_data, aes(x = lower_bound)) +
   annotate("text", x = final_sal - 20000, y = 48,
            label = paste("Final:", paste0("$", format(round(final_sal / 1000), nsmall = 0), "k")),
            color = "#FF8C00", fontface = "bold", size = 5) +
+  annotate("text", x = 200000, y = 48,
+           label = paste(n_salaries, "jobs listed a salary\nor", paste0(round(n_posted_sals,2) * 100, "%"), "of applications"),
+           color = "black", fontface = "bold", size = 5) +
   scale_x_continuous(breaks = breaks, labels = labels) +
   theme_minimal() +
   theme(plot.title = element_text(size = 20))
