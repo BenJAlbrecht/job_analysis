@@ -1,5 +1,10 @@
 # Libraries!
 library(tidyverse)
+
+# colors i use
+red <-  "#E31A1C"
+blue <- "#1F78B4"
+oj <- "#FF7F00"
 ##########################################################################################
 ################################## DATA CLEANING #########################################
 ##########################################################################################
@@ -22,21 +27,21 @@ data <- data %>%
 ##########################################################################################
 # Cumulative Application graph.
 cum_apps_plot <- ggplot(data, aes(x = date, y = cumulative_row_n)) +
-  geom_line(color = "#0072B2", linewidth = 1) +
+  geom_line(color = "#1F78B4", linewidth = 1) +
   labs(title = "Cumulative applications over time",
        subtitle = "u/i_oper8 job hunt",
        x = "Date", y = "Cumulative Applications") +
   theme_minimal() +
   annotate("text", x = max(data$date), y = max(data$cumulative_row_n) - 25,
-           label = nrow(data), hjust = 1, vjust = 1, color = "#0072B2", fontface = "bold",
+           label = nrow(data), hjust = 1, vjust = 1, color = "#1F78B4", fontface = "bold",
            size = 6) +
-  geom_vline(xintercept = as.Date("2024-03-21"), color = "#D73027",
+  geom_vline(xintercept = as.Date("2024-03-21"), color = "#E31A1C",
              linetype = "dashed", size = 1) +
   annotate("text", x = as.Date("2024-03-21") - 2, y = max(data$cumulative_row_n) / 2,
-           label = "Final\nApp. Submitted\n3/21", hjust = 1, vjust = 1, color = "#D73027", fontface = "bold", size = 3) +
+           label = "App. Submitted\nfor job I accepted\n3/21", hjust = 1, vjust = 1, color = "#E31A1C", fontface = "bold", size = 4) +
   annotate("text", x = max(data$date), y = max(data$cumulative_row_n) - 40,
-           label = "Total Apps.", hjust = 1, vjust = 1, color = "#0072B2", fontface = "bold",
-           size = 3) +
+           label = "Total Apps.", hjust = 1, vjust = 1, color = "#1F78B4", fontface = "bold",
+           size = 4) +
   theme(plot.title = element_text(size = 20))
 ##########################################################################################
 ############################### JOB TITLE HIST ###########################################
@@ -56,21 +61,23 @@ jobs_explicit <- c("Data Analyst", "Data Scientist", "Machine Learning Engineer"
                    "Software Engineer", "Data Engineer")
 
 # Plot.
-titles_plot <- ggplot(top_titles, aes(x = reorder(job, -n), y=n)) +
-  geom_bar(stat = "identity", fill = "#0072B2") +
-  labs(x = "Titles", y = "Frequency",
+titles_plot <- ggplot(top_titles, aes(x = reorder(job, -n), y = n, fill = reorder(job, -n))) +
+  geom_bar(stat = "identity") +
+  labs(x = NULL, y = "Frequency",
        title = "Top 5 job titles",
        subtitle = "u/i_oper8 job hunt") +
   theme_minimal() +
   geom_text(aes(label = n), vjust = -0.5, color = "black", size = 4, fontface = "bold") +
   theme(plot.title = element_text(size = 20),
-        panel.grid.major.x = element_blank()) +
+        panel.grid.major.x = element_blank(),
+        legend.position = "none") +
   scale_x_discrete(labels = jobs_explicit) +
+  scale_fill_brewer(palette = "Paired") +
   annotate("text", x = which(jobs_explicit == "Software Engineer"), y = 101,
            label = paste("Top 5 titles\naccounted for:",
                          paste0(format(tops_account_for * 100, nsmall = 0),
                                 "%"), "\n of titles or", sum(top_titles$n), "jobs"),
-           color = "#D73027", fontface = "bold", size = 5)
+           color = "black", fontface = "italic", size = 5)
 ##########################################################################################
 ################################## TOP LOC PIE ###########################################
 ##########################################################################################
@@ -108,10 +115,18 @@ top_locations <- data %>%
   count(simple_loc) %>%
   arrange(desc(n))
 
-ggplot(top_locations, aes(x = "", y = n, fill = simple_loc)) +
-  geom_bar(stat = "identity", width = 1) +
-  coord_polar("y", start = 0)
 
+loc_plot <- ggplot(top_locations, aes(x = reorder(simple_loc, -n), y = n, fill = reorder(simple_loc, -n))) +
+  geom_bar(stat = "identity") +
+  labs(x = NULL, y = "Frequency",
+       title = "Top Job Locations",
+       subtitle = "u/i_oper8 job hunt") +
+  theme_minimal() +
+  geom_text(aes(label = n), vjust = -0.5, color = "black", size = 4, fontface = "bold") +
+  theme(plot.title = element_text(size = 20),
+        panel.grid.major.x = element_blank(),
+        legend.position = "none") +
+  scale_fill_brewer(palette = "Paired")
 ##########################################################################################
 ################################ SALARY DIST #############################################
 ##########################################################################################
@@ -150,31 +165,30 @@ n_posted_sals <- n_salaries / n_jobs
 
 # Plotting
 sal_plot <- ggplot(salary_data, aes(x = lower_bound)) +
-  geom_histogram(binwidth = 15000, fill = "#0072B2", color = "black") +
+  geom_histogram(binwidth = 15000, fill = blue, color = "black") +
   labs(title = "Distribution of salaries",
-       x = "Salary (in USD)",
+       x = NULL,
        y = "Frequency",
        subtitle = "u/i_oper8 job hunt") +
   geom_density() +
   geom_vline(xintercept = mean_salary_value,
              linetype = "dashed",
-             color = "#D73027", size = 1.5) +
+             color = red, size = 1.5) +
   annotate("text", x = mean_salary_value + 20000, y = 48,
            label = paste("Mean:", paste0("$", format(round(mean_salary_value / 1000), nsmall = 0), "k")),
-           color = "#D73027", fontface = "bold", size = 5) +
+           color = red, fontface = "bold", size = 5) +
   geom_vline(xintercept = final_sal,
              linetype = "dashed",
-             color = "#FF8C00", size = 1.5) +
+             color = oj, size = 1.5) +
   annotate("text", x = final_sal - 20000, y = 48,
            label = paste("Final:", paste0("$", format(round(final_sal / 1000), nsmall = 0), "k")),
-           color = "#FF8C00", fontface = "bold", size = 5) +
+           color = oj, fontface = "bold", size = 5) +
   annotate("text", x = 200000, y = 48,
            label = paste(n_salaries, "jobs listed a salary\nor", paste0(round(n_posted_sals,2) * 100, "%"), "of applications"),
-           color = "black", fontface = "bold", size = 5) +
+           color = "black", fontface = "italic", size = 5) +
   scale_x_continuous(breaks = breaks, labels = labels) +
   theme_minimal() +
-  theme(plot.title = element_text(size = 20))
+  theme(plot.title = element_text(size = 22),
+        axis.text.x = element_text(size = 12))
 ##########################################################################################
 ##########################################################################################
-
-
