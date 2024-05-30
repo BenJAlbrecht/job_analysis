@@ -1,5 +1,6 @@
 # Libraries!
 library(tidyverse)
+library(ggsankeyfier)
 
 # colors i use
 red <-  "#E31A1C"
@@ -29,8 +30,8 @@ data <- data %>%
 cum_apps_plot <- ggplot(data, aes(x = date, y = cumulative_row_n)) +
   geom_line(color = "#1F78B4", linewidth = 1) +
   labs(title = "Cumulative applications over time",
-       subtitle = "u/i_oper8 job hunt",
-       x = "Date", y = "Cumulative Applications") +
+       caption = "u/i_oper8 job hunt",
+       x = NULL, y = NULL) +
   theme_minimal() +
   annotate("text", x = max(data$date), y = max(data$cumulative_row_n) - 25,
            label = nrow(data), hjust = 1, vjust = 1, color = "#1F78B4", fontface = "bold",
@@ -42,7 +43,7 @@ cum_apps_plot <- ggplot(data, aes(x = date, y = cumulative_row_n)) +
   annotate("text", x = max(data$date), y = max(data$cumulative_row_n) - 40,
            label = "Total Apps.", hjust = 1, vjust = 1, color = "#1F78B4", fontface = "bold",
            size = 4) +
-  theme(plot.title = element_text(size = 20))
+  theme(plot.title = element_text(size = 20, hjust = 0.5))
 ##########################################################################################
 ############################### JOB TITLE HIST ###########################################
 ##########################################################################################
@@ -63,12 +64,12 @@ jobs_explicit <- c("Data Analyst", "Data Scientist", "Machine Learning Engineer"
 # Plot.
 titles_plot <- ggplot(top_titles, aes(x = reorder(job, -n), y = n, fill = reorder(job, -n))) +
   geom_bar(stat = "identity") +
-  labs(x = NULL, y = "Frequency",
+  labs(x = NULL, y = NULL,
        title = "Top 5 job titles",
-       subtitle = "u/i_oper8 job hunt") +
+       caption = "u/i_oper8 job hunt") +
   theme_minimal() +
   geom_text(aes(label = n), vjust = -0.5, color = "black", size = 4, fontface = "bold") +
-  theme(plot.title = element_text(size = 20),
+  theme(plot.title = element_text(size = 20, hjust = 0.5),
         panel.grid.major.x = element_blank(),
         legend.position = "none") +
   scale_x_discrete(labels = jobs_explicit) +
@@ -118,12 +119,12 @@ top_locations <- data %>%
 
 loc_plot <- ggplot(top_locations, aes(x = reorder(simple_loc, -n), y = n, fill = reorder(simple_loc, -n))) +
   geom_bar(stat = "identity") +
-  labs(x = NULL, y = "Frequency",
-       title = "Top Job Locations",
-       subtitle = "u/i_oper8 job hunt") +
+  labs(x = NULL, y = NULL,
+       title = "Job Locations",
+       caption = "u/i_oper8 job hunt") +
   theme_minimal() +
   geom_text(aes(label = n), vjust = -0.5, color = "black", size = 4, fontface = "bold") +
-  theme(plot.title = element_text(size = 20),
+  theme(plot.title = element_text(size = 20, hjust = 0.5),
         panel.grid.major.x = element_blank(),
         legend.position = "none") +
   scale_fill_brewer(palette = "Paired")
@@ -168,8 +169,8 @@ sal_plot <- ggplot(salary_data, aes(x = lower_bound)) +
   geom_histogram(binwidth = 15000, fill = blue, color = "black") +
   labs(title = "Distribution of salaries",
        x = NULL,
-       y = "Frequency",
-       subtitle = "u/i_oper8 job hunt") +
+       y = NULL,
+       caption = "u/i_oper8 job hunt") +
   geom_density() +
   geom_vline(xintercept = mean_salary_value,
              linetype = "dashed",
@@ -188,7 +189,6 @@ sal_plot <- ggplot(salary_data, aes(x = lower_bound)) +
            color = "black", fontface = "italic", size = 5) +
   scale_x_continuous(breaks = breaks, labels = labels) +
   theme_minimal() +
-  theme(plot.title = element_text(size = 22),
-        axis.text.x = element_text(size = 12))
+  theme(plot.title = element_text(size = 22, hjust = 0.5))
 ##########################################################################################
 ##########################################################################################
